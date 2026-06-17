@@ -33,9 +33,9 @@ if calcular:
         var = sp.Symbol(variable_str.strip())
         f = sp.sympify(funcion_str)
 
-        # 1. Cálculo de derivadas
-        pd = sp.diff(f, var)  # Primera derivada
-        sd = sp.diff(pd, var) # Segunda derivada
+        # 1. Cálculo de derivadas (Cambiadas de nombre para evitar conflicto con pandas 'pd')
+        primera_der = sp.diff(f, var)  
+        segunda_der = sp.diff(primera_der, var) 
 
         st.header("1. Modelado Analítico y Derivadas")
         
@@ -45,20 +45,20 @@ if calcular:
             st.latex(rf"f({sp.latex(var)}) = {sp.latex(f)}")
         with col2:
             st.markdown("**Primera Derivada:**")
-            st.latex(rf"f'({sp.latex(var)}) = {sp.latex(pd)}")
+            st.latex(rf"f'({sp.latex(var)}) = {sp.latex(primera_der)}")
         with col3:
             st.markdown("**Segunda Derivada:**")
-            st.latex(rf"f''({sp.latex(var)}) = {sp.latex(sd)}")
+            st.latex(rf"f''({sp.latex(var)}) = {sp.latex(segunda_der)}")
 
         st.divider()
 
         # 2. Obtención de Puntos Críticos f'(x) = 0
         st.header("2. Determinación de Puntos Críticos")
         st.markdown(rf"Igualamos la primera derivada a cero para hallar los valores críticos de la función:")
-        st.latex(rf"f'({sp.latex(var)}) = {sp.latex(pd)} = 0")
+        st.latex(rf"f'({sp.latex(var)}) = {sp.latex(primera_der)} = 0")
 
         # Resolver en el campo de los números reales
-        soluciones = sp.solve(sp.Eq(pd, 0), var)
+        soluciones = sp.solve(sp.Eq(primera_der, 0), var)
         pc = sorted([sol for sol in soluciones if sol.is_real])
 
         if not pc:
@@ -80,9 +80,9 @@ if calcular:
             for i, c in enumerate(pc):
                 val_c = float(c.evalf())
                 val_f = float(f.subs(var, c).evalf())
-                val_sd = float(sd.subs(var, c).evalf())
+                val_sd = float(segunda_der.subs(var, c).evalf())
                 
-                # Clasificación analítica estricta según tu pizarra
+                # Clasificación analítica según las tres condiciones requeridas
                 if val_sd > 0:
                     tipo_extremo = "🟢 Mínimo"
                     condicion_latex = rf"f''({val_c:.3f}) = {val_sd:.3f} > 0"
@@ -100,8 +100,9 @@ if calcular:
                     "Resultado Analítico": tipo_extremo
                 })
 
-            # Mostrar los resultados estructurados en una tabla limpia y ordenada
-            st.dataframe(pd.DataFrame(datos_puntos), use_container_width=True, hide_index=True)
+            # Ahora pd.DataFrame funcionará perfectamente sin conflictos
+            df_resultado = pd.DataFrame(datos_puntos)
+            st.dataframe(df_resultado, use_container_width=True, hide_index=True)
 
     except Exception as e:
         st.error(f"Error en el cálculo: {e}. Revisa la expresión matemática ingresada.")
