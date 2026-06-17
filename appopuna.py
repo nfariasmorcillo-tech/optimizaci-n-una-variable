@@ -13,7 +13,8 @@ st.markdown("Análisis interactivo paso a paso mediante el **Criterio de la Segu
 # =========================================================================
 st.sidebar.header("📥 Configuración de la Función")
 
-funcion_str = st.sidebar.text_input("Función Objetivo f(x):", value="x**3 - 3*x**2 - 9*x + 5")
+# Ejemplo sugerido adaptado para que coincida con la estructura limpia de exponenciales
+funcion_str = st.sidebar.text_input("Función Objetivo f(x):", value="x * exp(3*x)")
 variable_str = st.sidebar.text_input("Variable de estudio:", value="x")
 
 st.sidebar.info("**Criterio de la Segunda Derivada Activo:**\n"
@@ -31,11 +32,15 @@ if calcular:
     try:
         # Configurar variable y función
         var = sp.Symbol(variable_str.strip())
-        f = sp.sympify(funcion_str)
+        
+        # Reemplazar posibles variantes de 'e' por la función exponencial nativa de SymPy
+        raw_func = funcion_str.replace("e**", "exp").replace("e^", "exp")
+        f = sp.sympify(raw_func)
 
-        # 1. Cálculo de derivadas (Cambiadas de nombre para evitar conflicto con pandas 'pd')
-        primera_der = sp.diff(f, var)  
-        segunda_der = sp.diff(primera_der, var) 
+        # 1. Cálculo de derivadas y simplificación estricta (asumiendo log(e) = 1)
+        # Factorizamos para que los alumnos vean la estructura matemática ideal
+        primera_der = sp.factor(sp.simplify(sp.diff(f, var)))  
+        segunda_der = sp.factor(sp.simplify(sp.diff(primera_der, var))) 
 
         st.header("1. Modelado Analítico y Derivadas")
         
@@ -44,16 +49,16 @@ if calcular:
             st.markdown("**Función Original:**")
             st.latex(rf"f({sp.latex(var)}) = {sp.latex(f)}")
         with col2:
-            st.markdown("**Primera Derivada:**")
+            st.markdown("**Primera Derivada (Factorizada):**")
             st.latex(rf"f'({sp.latex(var)}) = {sp.latex(primera_der)}")
         with col3:
-            st.markdown("**Segunda Derivada:**")
+            st.markdown("**Segunda Derivada (Factorizada):**")
             st.latex(rf"f''({sp.latex(var)}) = {sp.latex(segunda_der)}")
 
         st.divider()
 
         # 2. Obtención de Puntos Críticos f'(x) = 0
-        st.header("2. Determinación de Puntos Críticos")
+        st.header("2. Determination de Puntos Críticos")
         st.markdown(rf"Igualamos la primera derivada a cero para hallar los valores críticos de la función:")
         st.latex(rf"f'({sp.latex(var)}) = {sp.latex(primera_der)} = 0")
 
@@ -62,7 +67,7 @@ if calcular:
         pc = sorted([sol for sol in soluciones if sol.is_real])
 
         if not pc:
-            st.warning("No se encontraron puntos críticos reales para esta función.")
+            st.warning("No se encontraron puntos críticos reales para esta función. (Ej. Exponenciales puras que nunca tocan cero).")
         else:
             npc = len(pc)
             st.success(f"Se han detectado {npc} valor(es) crítico(s) real(es):")
@@ -100,7 +105,7 @@ if calcular:
                     "Resultado Analítico": tipo_extremo
                 })
 
-            # Ahora pd.DataFrame funcionará perfectamente sin conflictos
+            # Mostrar tabla final limpia
             df_resultado = pd.DataFrame(datos_puntos)
             st.dataframe(df_resultado, use_container_width=True, hide_index=True)
 
