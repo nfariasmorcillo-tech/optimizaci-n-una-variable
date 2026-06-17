@@ -17,7 +17,7 @@ funcion_str = st.sidebar.text_input("Función Objetivo f(x):", value="x**3 - 3*x
 variable_str = st.sidebar.text_input("Variable de estudio:", value="x")
 
 st.sidebar.info("**Criterio de la Segunda Derivada Activo:**\n"
-                "Para cada valor crítico $c$ donde $f'(c) = 0$:\n"
+                "Sea $c$ un valor crítico obtenido de $f'(x) = 0$:\n"
                 "• Si $f''(c) > 0 \\implies$ Mínimo en $(c, f(c))$\n"
                 "• Si $f''(c) < 0 \\implies$ Máximo en $(c, f(c))$\n"
                 "• Si $f''(c) = 0 \\implies$ Punto Silla en $(c, f(c))$")
@@ -54,8 +54,8 @@ if calcular:
 
         # 2. Obtención de Puntos Críticos f'(x) = 0
         st.header("2. Determinación de Puntos Críticos")
-        st.markdown(rf"Igualamos la primera derivada a cero ($f'({sp.latex(var)}) = 0$) para hallar los valores críticos:")
-        st.latex(rf"{sp.latex(pd)} = 0")
+        st.markdown(rf"Igualamos la primera derivada a cero para hallar los valores críticos de la función:")
+        st.latex(rf"f'({sp.latex(var)}) = {sp.latex(pd)} = 0")
 
         # Resolver en el campo de los números reales
         soluciones = sp.solve(sp.Eq(pd, 0), var)
@@ -82,7 +82,7 @@ if calcular:
                 val_f = float(f.subs(var, c).evalf())
                 val_sd = float(sd.subs(var, c).evalf())
                 
-                # Clasificación estricta solicitada por el usuario
+                # Clasificación analítica estricta según tu pizarra
                 if val_sd > 0:
                     tipo_extremo = "🟢 Mínimo"
                     condicion_latex = rf"f''({val_c:.3f}) = {val_sd:.3f} > 0"
@@ -100,7 +100,7 @@ if calcular:
                     "Resultado Analítico": tipo_extremo
                 })
 
-            # Mostrar los resultados estructurados en una tabla limpia
+            # Mostrar los resultados estructurados en una tabla limpia y ordenada
             st.dataframe(pd.DataFrame(datos_puntos), use_container_width=True, hide_index=True)
 
     except Exception as e:
